@@ -105,7 +105,10 @@ public class MobileAppServiceResource {
     public Game addGame( @FormDataParam("title")String title,
                          @FormDataParam("game")String gameTitle,
                          @FormDataParam("desc")String desc,
-                         @FormDataParam("players")String players){
+                         @FormDataParam("players")String players,
+                         @FormDataParam("date")String date,
+                         @FormDataParam("time")String time
+){
             User user = getCurrentUser();
             System.out.println(user.getUsername());
             int numberOfPlayers = Integer.parseInt(players);
@@ -124,6 +127,8 @@ public class MobileAppServiceResource {
             game.setDescription(desc);
             game.setMaxPlayers(numberOfPlayers);
             game.setGameName(gameTitle);
+            game.setDate(date);
+            game.setTime(time);
             
             return entityManager.merge(game);
     }

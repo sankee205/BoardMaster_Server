@@ -42,7 +42,9 @@ public class Game implements Serializable {
     private String title;
     private String description;
     private int maxPlayers;
-    private List<User> players;    
+    private List<User> players;   
+    private String date;
+    private String time;
 
     public void addPlayer(User player){ 
         if(players == null){
