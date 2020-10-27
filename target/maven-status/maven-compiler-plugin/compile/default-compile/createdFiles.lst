@@ -1,0 +1,17 @@
+com/mycompany/mobileapp/PhotoAdapter.class
+com/mycompany/mobileapp/Game.class
+com/mycompany/mobileapp/authentication/KeyService.class
+com/mycompany/mobileapp/resources/JavaEE8Resource.class
+com/mycompany/mobileapp/authentication/User.class
+com/mycompany/mobileapp/Mail.class
+com/mycompany/mobileapp/Photo.class
+com/mycompany/mobileapp/authentication/Group.class
+com/mycompany/mobileapp/configuration/DatasourceProducer.class
+com/mycompany/mobileapp/resources/MobileAppServiceResource.class
+com/mycompany/mobileapp/authentication/AuthenticationService.class
+com/mycompany/mobileapp/BoardGame.class
+com/mycompany/mobileapp/authentication/AuthRunOnStartUp.class
+com/mycompany/mobileapp/RunOnStartup.class
+com/mycompany/mobileapp/configuration/SecurityConfig.class
+com/mycompany/mobileapp/configuration/JAXRSConfiguration.class
+com/mycompany/mobileapp/authentication/User$State.class
