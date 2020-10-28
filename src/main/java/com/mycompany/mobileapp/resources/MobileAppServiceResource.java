@@ -6,7 +6,6 @@
 package com.mycompany.mobileapp.resources;
 
 import com.mycompany.mobileapp.BoardGame;
-import com.mycompany.mobileapp.Mail;
 import com.mycompany.mobileapp.Game;
 import com.mycompany.mobileapp.Photo;
 import com.mycompany.mobileapp.authentication.AuthenticationService;
@@ -85,6 +84,18 @@ public class MobileAppServiceResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Game> getGames() {
         return entityManager.createNativeQuery("SELECT * FROM Game", Game.class).getResultList();
+    }
+    
+    @GET
+    @Path("usersgames")
+    @RolesAllowed({Group.USER, Group.ADMIN})
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Game> getCurrentUserGames() {
+        User user = this.getCurrentUser();
+        //String query = "select * from game inner join game_users gu on game.id = gu.game_id where gu.players_uid = "+ user.getUsername();
+        String query = "select * from game inner join game_users gu on game.id = gu.game_id where players_uid ='"+ user.getUsername()+"'";
+
+        return entityManager.createNativeQuery(query, Game.class).getResultList();
     }
     
     @GET
@@ -227,7 +238,6 @@ public class MobileAppServiceResource {
 
 
     private User getCurrentUser(){
-        //System.out.printf("Pname low <%s>", principal.getName());
         return entityManager.find(User.class, securityContext.getUserPrincipal().getName());
     }
     

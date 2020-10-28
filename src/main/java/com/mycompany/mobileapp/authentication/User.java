@@ -60,6 +60,7 @@ import lombok.NoArgsConstructor;
 public class User implements Serializable{
     public static final String FIND_USER_BY_IDS = "User.findUserByIds";
     public static final String FIND_ALL_USERS = "User.findAllUsers";
+    
     public enum State {
         ACTIVE, INACTIVE
     }
