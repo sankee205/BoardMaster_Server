@@ -5,6 +5,7 @@
  */
 package com.mycompany.mobileapp;
 
+import com.mycompany.mobileapp.authentication.Group;
 import com.mycompany.mobileapp.authentication.User;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -45,10 +46,22 @@ public class Game implements Serializable {
     private List<User> players;   
     private String date;
     private String time;
+    private User gameOwner;
+    
+    @OneToMany
+    List<Photo> profileImages;
+    
+      public void addPhoto(Photo photo) {
+        if(this.profileImages == null) {
+            this.profileImages = new ArrayList<>();
+        }
+        
+        this.profileImages.add(photo);
+    }
 
     public void addPlayer(User player){ 
         if(players == null){
-            players = new ArrayList();
+            players = new ArrayList<User>();
         }
         players.add(player);       
        

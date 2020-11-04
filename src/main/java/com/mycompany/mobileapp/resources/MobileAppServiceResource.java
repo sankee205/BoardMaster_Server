@@ -118,10 +118,9 @@ public class MobileAppServiceResource {
                          @FormDataParam("desc")String desc,
                          @FormDataParam("players")String players,
                          @FormDataParam("date")String date,
-                         @FormDataParam("time")String time
-){
+                         @FormDataParam("time")String time,
+                         FormDataMultiPart photos){
             User user = getCurrentUser();
-            System.out.println(user.getUsername());
             int numberOfPlayers = Integer.parseInt(players);
             
             Game game = new Game();
@@ -140,6 +139,40 @@ public class MobileAppServiceResource {
             game.setGameName(gameTitle);
             game.setDate(date);
             game.setTime(time);
+            game.setGameOwner(user);
+            
+            ArrayList<Photo> p = new ArrayList<>();
+            try{
+                List<FormDataBodyPart> images = photos.getFields("image");
+
+                if(images != null) {
+
+
+                    for (FormDataBodyPart part : images) {
+                        InputStream is = part.getEntityAs(InputStream.class);
+                        ContentDisposition meta = part.getContentDisposition();
+
+                        String pid = UUID.randomUUID().toString();
+                        Files.copy(is, Paths.get(getPhotoPath(), pid));
+
+                        Photo photo = new Photo();
+                        photo.setId(pid);
+                        photo.setFilesize(meta.getSize());
+                        photo.setMimeType(meta.getType());
+                        photo.setName(meta.getFileName());
+
+                        p.add(photo);
+
+                        entityManager.persist(photo);
+                    }
+
+                }
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            
+            game.setProfileImages(p);
             
             return entityManager.merge(game);
     }

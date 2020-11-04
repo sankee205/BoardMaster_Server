@@ -49,6 +49,7 @@ import net.coobird.thumbnailator.Thumbnails;
 import com.mycompany.mobileapp.authentication.AuthenticationService;
 import javax.annotation.security.DeclareRoles;
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
@@ -136,10 +137,15 @@ public class ChatService {
      * @return
      */
     private Conversation getConversation(String conversationid) {
-        return em.createNamedQuery(Conversation.FIND_BY_ID_AND_USERID,Conversation.class)
+        Conversation conversationList = null;
+        conversationList = em.createNamedQuery(Conversation.FIND_BY_ID_AND_USERID,Conversation.class)
                  .setParameter("cid", conversationid)
-                 .setParameter("userid", sc.getUserPrincipal().getName())
-                 .getSingleResult();
+                 .setParameter("username", getCurrentUser().getUsername()).getSingleResult();
+        System.out.println(conversationList);
+        return null;
+    }
+    private User getCurrentUser(){
+        return em.find(User.class, sc.getUserPrincipal().getName());
     }
 
     /**
@@ -160,6 +166,7 @@ public class ChatService {
                                 FormDataMultiPart multiPart) {
         Message message;
         try {
+            System.out.println(sc.getUserPrincipal().getName());
             User user = em.find(User.class,sc.getUserPrincipal().getName());
             Conversation conversation = getConversation(conversationid);
             message = new Message(text,user, conversation);
@@ -195,16 +202,7 @@ public class ChatService {
         return Response.ok(message).build();
     }
     
-    @GET
-    @Path("create_group")    
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Group.USER})
-    public Response createConversation() {
-        User user = em.find(User.class,sc.getUserPrincipal().getName());
-        Conversation conversation = new Conversation(user);
-
-        return Response.ok().build();
-    }
+   
     
 
     /**

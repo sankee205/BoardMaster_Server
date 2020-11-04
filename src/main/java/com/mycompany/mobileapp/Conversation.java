@@ -43,14 +43,14 @@ import lombok.Data;
 @NamedQuery(name = FIND_BY_ID_AND_USERID,
             query = "select distinct c from Conversation c, User u " +
                     "where u.username = :username and c.id = :cid " +
-                    "and (c.owner = u or u member of c.recipients)")
+                    "and c.owner = u ")
 public class Conversation {
     public static final String FIND_BY_USER = "Conversation.findByUser";
     public static final String FIND_BY_USER_AND_DATE = "Conversation.findByUserAndDate";
     public static final String FIND_BY_ID_AND_USERID = "Conversation.findByIdAndUserId";
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id 
+    @GeneratedValue
     String id;
 
     @OneToMany(mappedBy = "conversation",cascade = CascadeType.ALL)
@@ -64,6 +64,8 @@ public class Conversation {
     
     @Temporal(javax.persistence.TemporalType.DATE)
     Date created;
+    
+    Game game;
     
      protected Conversation() {
     }
@@ -80,11 +82,13 @@ public class Conversation {
        getMessages().add(message);
     }
     
-    public Conversation(User owner) {
+    public Conversation(User owner, List<User> userlist) {
         this.owner = owner;
+        this.recipients = userlist;
     }
     public void addPlayer(User user){
         this.recipients.add(user);
     }
     
+   
 }
