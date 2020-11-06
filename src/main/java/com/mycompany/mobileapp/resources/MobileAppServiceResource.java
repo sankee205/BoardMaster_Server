@@ -17,7 +17,9 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -92,7 +94,6 @@ public class MobileAppServiceResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Game> getCurrentUserGames() {
         User user = this.getCurrentUser();
-        //String query = "select * from game inner join game_users gu on game.id = gu.game_id where gu.players_uid = "+ user.getUsername();
         String query = "select * from game inner join game_users gu on game.id = gu.game_id where players_uid ='"+ user.getUsername()+"'";
 
         return entityManager.createNativeQuery(query, Game.class).getResultList();
@@ -117,8 +118,8 @@ public class MobileAppServiceResource {
                          @FormDataParam("game")String gameTitle,
                          @FormDataParam("desc")String desc,
                          @FormDataParam("players")String players,
-                         @FormDataParam("date")String date,
-                         @FormDataParam("time")String time,
+                         @FormDataParam("date")Date date,
+                         @FormDataParam("time")Time time,
                          FormDataMultiPart photos){
             User user = getCurrentUser();
             int numberOfPlayers = Integer.parseInt(players);
@@ -186,8 +187,9 @@ public class MobileAppServiceResource {
             @FormDataParam("name")String name,
             @FormDataParam("players")int players,
             FormDataMultiPart photos){
-        BoardGame boardgame = entityManager.find(BoardGame.class, name);
-        if (boardgame != null) {
+        String query = "select b from BoardGame b where b.name = :boardname";
+        List<BoardGame> boardgames = entityManager.createQuery(query, BoardGame.class).setParameter("boardname", name).getResultList();
+        if (!boardgames.isEmpty()) {
             throw new IllegalArgumentException("Boardgame " + name + " already exists");
         } else {
              
@@ -196,7 +198,7 @@ public class MobileAppServiceResource {
 
         game.setName(name);
         game.setPlayers(players);
-        game.setGameOwner(user.getUsername());
+        game.setGameOwner(user);
         
         ArrayList<Photo> p = new ArrayList<>();
 

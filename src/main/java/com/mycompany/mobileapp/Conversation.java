@@ -21,9 +21,12 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Temporal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
@@ -32,6 +35,7 @@ import lombok.Data;
 @Entity
 @Data 
 @AllArgsConstructor
+@NoArgsConstructor
 @NamedQuery(name = FIND_BY_USER,
             query = "select distinct c from Conversation c, User u " +
                     "where u.username = :username and (c.owner = u or u member of c.recipients) " +
@@ -50,10 +54,10 @@ public class Conversation {
     public static final String FIND_BY_ID_AND_USERID = "Conversation.findByIdAndUserId";
     
     @Id 
-    @GeneratedValue
-    String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
 
-    @OneToMany(mappedBy = "conversation",cascade = CascadeType.ALL)
+    @OneToMany
     List<Message> messages;
 
     @ManyToMany(cascade = {CascadeType.PERSIST})
@@ -65,9 +69,12 @@ public class Conversation {
     @Temporal(javax.persistence.TemporalType.DATE)
     Date created;
     
+    @OneToOne
     Game game;
     
-     protected Conversation() {
+    @PrePersist
+    protected void onCreate() {
+        created = new Date();
     }
     
     public List<Message> getMessages() {
@@ -82,10 +89,13 @@ public class Conversation {
        getMessages().add(message);
     }
     
-    public Conversation(User owner, List<User> userlist) {
-        this.owner = owner;
-        this.recipients = userlist;
+    public List<User> getUsers(){
+        if(recipients == null){
+            recipients = new ArrayList<>();
+        }
+        return recipients;
     }
+    
     public void addPlayer(User user){
         this.recipients.add(user);
     }

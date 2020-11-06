@@ -36,8 +36,9 @@ public class Message {
     public static final String FIND_ALL_MESSAGES = "Message.findAllUsers";
     public static final String FIND_MESSAGES_BY_USERID = "Message.findByUserId";
     
-    @Id @GeneratedValue
-    private String id;
+    @Id 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     String text;
     
@@ -61,7 +62,7 @@ public class Message {
         this.conversation = conversation;
         this.conversation.getMessages().add(this);
     }
-    public String getId() {
+    public long getId() {
         return id;
     }
 
@@ -73,7 +74,7 @@ public class Message {
         this.photos.add(photo);
     }
     
-    public String getConversationId() {
+    public Long getConversationId() {
         return conversation != null ? conversation.getId() : null;
     }
 }

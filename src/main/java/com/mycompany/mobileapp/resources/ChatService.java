@@ -137,10 +137,9 @@ public class ChatService {
      * @return
      */
     private Conversation getConversation(String conversationid) {
-        Conversation conversationList = null;
-        conversationList = em.createNamedQuery(Conversation.FIND_BY_ID_AND_USERID,Conversation.class)
-                 .setParameter("cid", conversationid)
-                 .setParameter("username", getCurrentUser().getUsername()).getSingleResult();
+        String query = "select * from conversation c where c.id = '" +conversationid+"'";
+        List<Conversation> conversationList = null;
+        conversationList = em.createNativeQuery(query,Conversation.class).getResultList();
         System.out.println(conversationList);
         return null;
     }

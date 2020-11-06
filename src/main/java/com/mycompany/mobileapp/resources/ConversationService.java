@@ -53,6 +53,7 @@ public class ConversationService {
                  .setParameter("userid", getCurrentUser())
                  .getResultList();
     }
+    
 
     @GET
     @Path("conversationfromdate")
@@ -70,15 +71,18 @@ public class ConversationService {
     @RolesAllowed({Group.USER})
     @Path("createconversation")
     public Conversation createConversation(
-            @FormParam("recipientids") List<String> recipientIds,
-            @FormParam("game") Game game) {
+            @FormParam("game") Long gameid) {
         Conversation result = null;
 
         User owner = getCurrentUser();
-        List<User> recipients = findUsersByUserId(recipientIds);
+        Game game = em.find(Game.class, gameid);
+        List<User> recipients = new ArrayList<User>();
         if(owner != null) {
-            result = new Conversation(owner, recipients);
+            result = new Conversation();
+            result.setRecipients(recipients);
+            result.setOwner(owner);
             result.setGame(game);
+            result.addPlayer(owner);
             em.persist(result);
         }
         
@@ -87,11 +91,15 @@ public class ConversationService {
     
     @GET
     @RolesAllowed({Group.USER})
-    public String getConversationByGame(@FormParam("game") Game game){
+    @Path("getconversationgame")
+    public Conversation getConversationByGame(@QueryParam("gameid") Long gameid){
         User user = getCurrentUser();
-        String query = "select c from conversation where c.owner ="+ user.getUsername() + "and game.id ="+ game.getId();
-        Conversation con =em.createNamedQuery(query,Conversation.class).getSingleResult();
-        return con.getId();
+        String query = " select distinct c from Conversation c, User u where u.username= :userid and c.game.id = :gameid and u member of c.recipients";
+        return (Conversation) em.createQuery(query,Conversation.class)
+                .setParameter("userid", user.getUsername())
+                .setParameter("gameid", gameid)
+                .getSingleResult();
+       
     }
 
 
