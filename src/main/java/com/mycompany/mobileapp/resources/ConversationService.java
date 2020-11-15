@@ -92,14 +92,13 @@ public class ConversationService {
     @GET
     @RolesAllowed({Group.USER})
     @Path("getconversationgame")
-    public Conversation getConversationByGame(@QueryParam("gameid") Long gameid){
+    public Object getConversationByGame(@QueryParam("gameid") Long gameid){
         User user = getCurrentUser();
-        String query = " select distinct c from Conversation c, User u where u.username= :userid and c.game.id = :gameid and u member of c.recipients";
-        return (Conversation) em.createQuery(query,Conversation.class)
+        String query = " select c.id, c.created, c.owner.username, c.game.id from Conversation c, User u where u.username= :userid and c.game.id = :gameid and u member of c.recipients";
+        return em.createQuery(query,Conversation.class)
                 .setParameter("userid", user.getUsername())
                 .setParameter("gameid", gameid)
                 .getSingleResult();
-       
     }
 
 

@@ -6,6 +6,7 @@
 package com.mycompany.mobileapp.resources;
 
 import com.mycompany.mobileapp.BoardGame;
+import com.mycompany.mobileapp.Conversation;
 import com.mycompany.mobileapp.Game;
 import com.mycompany.mobileapp.Photo;
 import com.mycompany.mobileapp.authentication.AuthenticationService;
@@ -18,11 +19,14 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -118,8 +122,8 @@ public class MobileAppServiceResource {
                          @FormDataParam("game")String gameTitle,
                          @FormDataParam("desc")String desc,
                          @FormDataParam("players")String players,
-                         @FormDataParam("date")Date date,
-                         @FormDataParam("time")Time time,
+                         @FormDataParam("date")String date,
+                         @FormDataParam("time")String time,
                          FormDataMultiPart photos){
             User user = getCurrentUser();
             int numberOfPlayers = Integer.parseInt(players);
@@ -135,6 +139,8 @@ public class MobileAppServiceResource {
                 game.setTitle(title);
 
             }
+              
+            
             game.setDescription(desc);
             game.setMaxPlayers(numberOfPlayers);
             game.setGameName(gameTitle);
@@ -279,14 +285,18 @@ public class MobileAppServiceResource {
     @PUT
     @Path("joingame")
     @RolesAllowed({Group.USER})
-    public Response joinGame(@QueryParam("gameid") String gameid) {
+    public Response joinGame(@QueryParam("gameid") Long gameid) {
 
         User currentuser = entityManager.find(User.class, principal.getName());
 
         if (currentuser != null){
             Game currentGame = entityManager.find(Game.class, gameid);
+            Conversation gameConversation = entityManager.createQuery("select c from Conversation c where c.game.id = :game", Conversation.class)
+                    .setParameter("game", gameid)
+                    .getSingleResult();
             if(!currentGame.getPlayers().contains(currentuser)){
                 currentGame.addPlayer(currentuser);
+                gameConversation.addPlayer(currentuser);
                 return Response.ok().build();
             }
 

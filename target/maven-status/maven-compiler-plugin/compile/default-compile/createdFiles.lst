@@ -16,6 +16,7 @@ com/mycompany/mobileapp/RunOnStartup.class
 com/mycompany/mobileapp/configuration/SecurityConfig.class
 com/mycompany/mobileapp/Message.class
 com/mycompany/mobileapp/Conversation.class
+com/mycompany/mobileapp/ConversationAdapter.class
 com/mycompany/mobileapp/resources/ConversationService.class
 com/mycompany/mobileapp/configuration/JAXRSConfiguration.class
 com/mycompany/mobileapp/authentication/User$State.class

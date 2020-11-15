@@ -26,10 +26,11 @@ import java.util.Date;
 @Entity
 @Data
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false, exclude={"conversation"})
 @NamedQuery(name = FIND_MESSAGES_BY_USERID,
-            query = "select m from Message m " +
+            query = "select m from Message m, User u " +
                     "where m.conversation.id = :cid and " +
-                    "(m.conversation.owner.username = :username or :username member of m.conversation.recipients)")
+                    "u.username = :username and u member of m.conversation.recipients")
 @NamedQuery(name = FIND_ALL_MESSAGES,
             query = "select m from Message m")
 public class Message {
@@ -42,12 +43,14 @@ public class Message {
 
     String text;
     
-    @ManyToOne
+    @ManyToOne(optional = false,cascade = CascadeType.PERSIST)
     User sender;
 
-    @ManyToOne
+    @JsonbTransient
+    @ManyToOne(optional = false,cascade = CascadeType.PERSIST)
     Conversation conversation;
     
+    //@JsonbTypeAdapter(PhotoAdapter.class)
     @OneToMany
     List<Photo> photos;
     
@@ -61,6 +64,8 @@ public class Message {
         this.sender = sender;
         this.conversation = conversation;
         this.conversation.getMessages().add(this);
+        this.onCreate();
+        this.photos = new ArrayList();
     }
     public long getId() {
         return id;
@@ -76,5 +81,9 @@ public class Message {
     
     public Long getConversationId() {
         return conversation != null ? conversation.getId() : null;
+    }
+    
+    protected void onCreate() {
+        created = new Date();
     }
 }

@@ -46,8 +46,8 @@ public class Game implements Serializable {
     private String description;
     private int maxPlayers;
     private List<User> players;   
-    private Date date;
-    private Time time;
+    private String date;
+    private String time;
     private User gameOwner;
     
     @OneToMany

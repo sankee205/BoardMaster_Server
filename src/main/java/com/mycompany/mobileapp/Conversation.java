@@ -12,6 +12,7 @@ import com.mycompany.mobileapp.authentication.User;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,6 +27,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.Temporal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -35,6 +37,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Data 
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false, exclude={"messages"})
+
 @NoArgsConstructor
 @NamedQuery(name = FIND_BY_USER,
             query = "select distinct c from Conversation c, User u " +
@@ -57,9 +61,10 @@ public class Conversation {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
-    @OneToMany
+    @OneToMany(mappedBy = "conversation",cascade = CascadeType.ALL)
     List<Message> messages;
 
+    
     @ManyToMany(cascade = {CascadeType.PERSIST})
     List<User> recipients;
 

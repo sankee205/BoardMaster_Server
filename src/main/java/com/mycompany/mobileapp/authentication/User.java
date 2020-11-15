@@ -54,6 +54,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false, exclude={"groups"})
 @Table(name = "users",  schema = "public")
 @NamedQuery(name = FIND_ALL_USERS, query = "select u from User u order by u.firstname")
 @NamedQuery(name = FIND_USER_BY_IDS, query = "select u from User u where u.username in :ids")
@@ -81,6 +82,7 @@ public class User implements Serializable{
     @Column(name = "email", nullable = false)
     private String email;
     
+    @JsonbTransient
     @Column(name = "password", nullable = false)
     private String password;
    

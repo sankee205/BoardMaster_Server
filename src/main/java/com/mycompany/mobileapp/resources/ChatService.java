@@ -117,9 +117,10 @@ public class ChatService {
     @Path("messages/{conversationid}")
     @RolesAllowed({Group.USER})
     public List<Message> getMessages(@DefaultValue("-1") @PathParam("conversationid")Long conversationid) {
-        return em.createNamedQuery(Message.FIND_MESSAGES_BY_USERID,Message.class)
+        String query = "select distinct m from Message m ";
+        return em.createNamedQuery(Message.FIND_MESSAGES_BY_USERID, Message.class)
             .setParameter("cid", conversationid)
-            .setParameter("userid", sc.getUserPrincipal().getName())
+            .setParameter("username", sc.getUserPrincipal().getName())
             .getResultList();
     }
     
@@ -136,12 +137,9 @@ public class ChatService {
      * @param conversationid
      * @return
      */
-    private Conversation getConversation(String conversationid) {
-        String query = "select * from conversation c where c.id = '" +conversationid+"'";
-        List<Conversation> conversationList = null;
-        conversationList = em.createNativeQuery(query,Conversation.class).getResultList();
-        System.out.println(conversationList);
-        return null;
+    private Conversation getConversation(Long conversationid) {
+        Conversation con = em.find(Conversation.class, conversationid);
+        return con;
     }
     private User getCurrentUser(){
         return em.find(User.class, sc.getUserPrincipal().getName());
@@ -160,14 +158,16 @@ public class ChatService {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Group.USER})
-    public Response sendMessage(@FormDataParam("conversationid")String conversationid,
+    public Message sendMessage(@FormDataParam("conversationid")String conversationid,
                                 @FormDataParam("message")String text,
                                 FormDataMultiPart multiPart) {
-        Message message;
+        Long id = Long.parseLong(conversationid);
+        System.out.println(id);
+        Message message = null;
         try {
             System.out.println(sc.getUserPrincipal().getName());
             User user = em.find(User.class,sc.getUserPrincipal().getName());
-            Conversation conversation = getConversation(conversationid);
+            Conversation conversation = getConversation(id);
             message = new Message(text,user, conversation);
             List<FormDataBodyPart> images = multiPart.getFields("image");
             if(images != null) {
@@ -188,6 +188,7 @@ public class ChatService {
                     message.addPhoto(photo);
                 }
             }
+            
 
             em.persist(message);
             
@@ -195,10 +196,10 @@ public class ChatService {
             messageEvent.fireAsync(message);
         } catch (IOException ex) {
             Logger.getLogger(ChatService.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.serverError().build();
+            ex.printStackTrace();
         }
         
-        return Response.ok(message).build();
+        return message;
     }
     
    
