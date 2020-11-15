@@ -8,6 +8,7 @@ package com.mycompany.mobileapp;
 import com.mycompany.mobileapp.authentication.User;
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,15 +34,20 @@ public class BoardGame implements Serializable {
     private static final long serialVersionUID = 1L;
         
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(name = "name", nullable = false)
     private String name;
+    
+    @Column(name = "max_players", nullable = false)
     private int players;
 
     @OneToMany
     private List<Photo> boardImages;
 
-    private String gameOwner;
+    @OneToOne
+    private User gameOwner;
 
     
 

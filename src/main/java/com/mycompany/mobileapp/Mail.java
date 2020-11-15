@@ -15,7 +15,7 @@ import java.util.Properties;
 
 
 public class Mail {
-    private static final String senderMail = "noreply@fant.no";//System.getenv("MAIL_USERNAME");
+    /**private static final String senderMail = "noreply@fant.no";//System.getenv("MAIL_USERNAME");
     //private static final String senderPass = System.getenv("MAIL_PASSWORD");
 
 
@@ -38,7 +38,7 @@ public class Mail {
                         return new PasswordAuthentication(user,password);
                     }
                 }
-                */);
+                );
 
 
 
@@ -54,7 +54,7 @@ public class Mail {
             //System.out.println("message sent successfully...");
 
         } catch (MessagingException e) {e.printStackTrace();}
-    }
+    }*/
 
 
 

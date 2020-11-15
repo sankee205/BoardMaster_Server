@@ -5,10 +5,13 @@
  */
 package com.mycompany.mobileapp;
 
+import com.mycompany.mobileapp.authentication.Group;
 import com.mycompany.mobileapp.authentication.User;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,17 +39,31 @@ public class Game implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    private Long id;
 
     private String gameName;
     private String title;
     private String description;
     private int maxPlayers;
-    private List<User> players;    
+    private List<User> players;   
+    private String date;
+    private String time;
+    private User gameOwner;
+    
+    @OneToMany
+    List<Photo> profileImages;
+    
+      public void addPhoto(Photo photo) {
+        if(this.profileImages == null) {
+            this.profileImages = new ArrayList<>();
+        }
+        
+        this.profileImages.add(photo);
+    }
 
     public void addPlayer(User player){ 
         if(players == null){
-            players = new ArrayList();
+            players = new ArrayList<User>();
         }
         players.add(player);       
        

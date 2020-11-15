@@ -6,7 +6,7 @@
 package com.mycompany.mobileapp.resources;
 
 import com.mycompany.mobileapp.BoardGame;
-import com.mycompany.mobileapp.Mail;
+import com.mycompany.mobileapp.Conversation;
 import com.mycompany.mobileapp.Game;
 import com.mycompany.mobileapp.Photo;
 import com.mycompany.mobileapp.authentication.AuthenticationService;
@@ -18,10 +18,15 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -88,6 +93,17 @@ public class MobileAppServiceResource {
     }
     
     @GET
+    @Path("usersgames")
+    @RolesAllowed({Group.USER, Group.ADMIN})
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Game> getCurrentUserGames() {
+        User user = this.getCurrentUser();
+        String query = "select * from game inner join game_users gu on game.id = gu.game_id where players_uid ='"+ user.getUsername()+"'";
+
+        return entityManager.createNativeQuery(query, Game.class).getResultList();
+    }
+    
+    @GET
     @Path("boardgames")
     @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
@@ -105,9 +121,11 @@ public class MobileAppServiceResource {
     public Game addGame( @FormDataParam("title")String title,
                          @FormDataParam("game")String gameTitle,
                          @FormDataParam("desc")String desc,
-                         @FormDataParam("players")String players){
+                         @FormDataParam("players")String players,
+                         @FormDataParam("date")String date,
+                         @FormDataParam("time")String time,
+                         FormDataMultiPart photos){
             User user = getCurrentUser();
-            System.out.println(user.getUsername());
             int numberOfPlayers = Integer.parseInt(players);
             
             Game game = new Game();
@@ -121,9 +139,47 @@ public class MobileAppServiceResource {
                 game.setTitle(title);
 
             }
+              
+            
             game.setDescription(desc);
             game.setMaxPlayers(numberOfPlayers);
             game.setGameName(gameTitle);
+            game.setDate(date);
+            game.setTime(time);
+            game.setGameOwner(user);
+            
+            ArrayList<Photo> p = new ArrayList<>();
+            try{
+                List<FormDataBodyPart> images = photos.getFields("image");
+
+                if(images != null) {
+
+
+                    for (FormDataBodyPart part : images) {
+                        InputStream is = part.getEntityAs(InputStream.class);
+                        ContentDisposition meta = part.getContentDisposition();
+
+                        String pid = UUID.randomUUID().toString();
+                        Files.copy(is, Paths.get(getPhotoPath(), pid));
+
+                        Photo photo = new Photo();
+                        photo.setId(pid);
+                        photo.setFilesize(meta.getSize());
+                        photo.setMimeType(meta.getType());
+                        photo.setName(meta.getFileName());
+
+                        p.add(photo);
+
+                        entityManager.persist(photo);
+                    }
+
+                }
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            
+            game.setProfileImages(p);
             
             return entityManager.merge(game);
     }
@@ -137,8 +193,9 @@ public class MobileAppServiceResource {
             @FormDataParam("name")String name,
             @FormDataParam("players")int players,
             FormDataMultiPart photos){
-        BoardGame boardgame = entityManager.find(BoardGame.class, name);
-        if (boardgame != null) {
+        String query = "select b from BoardGame b where b.name = :boardname";
+        List<BoardGame> boardgames = entityManager.createQuery(query, BoardGame.class).setParameter("boardname", name).getResultList();
+        if (!boardgames.isEmpty()) {
             throw new IllegalArgumentException("Boardgame " + name + " already exists");
         } else {
              
@@ -147,7 +204,7 @@ public class MobileAppServiceResource {
 
         game.setName(name);
         game.setPlayers(players);
-        game.setGameOwner(user.getUsername());
+        game.setGameOwner(user);
         
         ArrayList<Photo> p = new ArrayList<>();
 
@@ -222,21 +279,24 @@ public class MobileAppServiceResource {
 
 
     private User getCurrentUser(){
-        //System.out.printf("Pname low <%s>", principal.getName());
         return entityManager.find(User.class, securityContext.getUserPrincipal().getName());
     }
     
     @PUT
     @Path("joingame")
     @RolesAllowed({Group.USER})
-    public Response joinGame(@QueryParam("gameid") String gameid) {
+    public Response joinGame(@QueryParam("gameid") Long gameid) {
 
         User currentuser = entityManager.find(User.class, principal.getName());
 
         if (currentuser != null){
             Game currentGame = entityManager.find(Game.class, gameid);
+            Conversation gameConversation = entityManager.createQuery("select c from Conversation c where c.game.id = :game", Conversation.class)
+                    .setParameter("game", gameid)
+                    .getSingleResult();
             if(!currentGame.getPlayers().contains(currentuser)){
                 currentGame.addPlayer(currentuser);
+                gameConversation.addPlayer(currentuser);
                 return Response.ok().build();
             }
 
