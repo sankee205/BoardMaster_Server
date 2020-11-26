@@ -51,7 +51,6 @@ public class Mail {
 
             Transport.send(message);
 
-            //System.out.println("message sent successfully...");
 
         } catch (MessagingException e) {e.printStackTrace();}
     }*/

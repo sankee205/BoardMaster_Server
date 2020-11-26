@@ -124,6 +124,8 @@ public class MobileAppServiceResource {
                          @FormDataParam("players")String players,
                          @FormDataParam("date")String date,
                          @FormDataParam("time")String time,
+                         @FormDataParam("photoId")String photoId,
+                        
                          FormDataMultiPart photos){
             User user = getCurrentUser();
             int numberOfPlayers = Integer.parseInt(players);
@@ -148,39 +150,34 @@ public class MobileAppServiceResource {
             game.setTime(time);
             game.setGameOwner(user);
             
-            ArrayList<Photo> p = new ArrayList<>();
-            try{
-                List<FormDataBodyPart> images = photos.getFields("image");
-
-                if(images != null) {
-
-
-                    for (FormDataBodyPart part : images) {
-                        InputStream is = part.getEntityAs(InputStream.class);
-                        ContentDisposition meta = part.getContentDisposition();
-
-                        String pid = UUID.randomUUID().toString();
-                        Files.copy(is, Paths.get(getPhotoPath(), pid));
-
-                        Photo photo = new Photo();
-                        photo.setId(pid);
-                        photo.setFilesize(meta.getSize());
-                        photo.setMimeType(meta.getType());
-                        photo.setName(meta.getFileName());
-
-                        p.add(photo);
-
-                        entityManager.persist(photo);
-                    }
-
-                }
-
-            } catch (Exception e){
-                e.printStackTrace();
+            if(photoId != null){
+                Photo photo =entityManager.find(Photo.class, photoId);
+                game.addPhoto(photo);
             }
-            
-            game.setProfileImages(p);
-            
+            else{
+                ArrayList<Photo> p = new ArrayList<>();
+                try{
+                    List<FormDataBodyPart> images = photos.getFields("image");
+                    if(images != null) {
+                        for (FormDataBodyPart part : images) {
+                            InputStream is = part.getEntityAs(InputStream.class);
+                            ContentDisposition meta = part.getContentDisposition();
+                            String pid = UUID.randomUUID().toString();
+                            Files.copy(is, Paths.get(getPhotoPath(), pid));
+                            Photo photo = new Photo();
+                            photo.setId(pid);
+                            photo.setFilesize(meta.getSize());
+                            photo.setMimeType(meta.getType());
+                            photo.setName(meta.getFileName());
+                            p.add(photo);
+                            entityManager.persist(photo);
+                        }
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+                game.setProfileImages(p);
+            }
             return entityManager.merge(game);
     }
 
@@ -189,7 +186,7 @@ public class MobileAppServiceResource {
     @Path("add-boardgame")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @RolesAllowed({Group.ADMIN})
-    public Response addBoardGame(
+    public BoardGame addBoardGame(
             @FormDataParam("name")String name,
             @FormDataParam("players")int players,
             FormDataMultiPart photos){
@@ -240,41 +237,18 @@ public class MobileAppServiceResource {
             e.printStackTrace();
         }
         game.setBoardImages(p);
-        entityManager.persist(game);
 
-        return Response.ok().build();
+        return entityManager.merge(game);
         }
       
     }
     
     @GET
     @Path("image/{name}")
-    @Produces("image/jpeg")
-    public Response getPhoto(@PathParam("name") String name, @QueryParam("width") int width) {
-        if(entityManager.find(Photo.class, name) != null) {
-            StreamingOutput result = (OutputStream os) -> {
-                java.nio.file.Path image = Paths.get(getPhotoPath(),name);
-                if(width == 0) {
-                    Files.copy(image, os);
-                    os.flush();
-                } else {
-                    Thumbnails.of(image.toFile())
-                            .size(width, width)
-                            .outputFormat("jpeg")
-                            .toOutputStream(os);
-                }
-            };
-
-            // Ask the browser to cache the image for 24 hours
-            CacheControl cc = new CacheControl();
-            cc.setMaxAge(86400);
-            cc.setPrivate(true);
-
-            return Response.ok(result).cacheControl(cc).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-
+    public String getPhoto(@PathParam("name") String name) {
+        String query = "select b from BoardGame b where b.name = '"+ name + "'";
+        BoardGame boardGame = entityManager.createQuery(query,BoardGame.class).getSingleResult(); 
+        return boardGame.getBoardImages().get(0).getId()  ;
     }
 
 

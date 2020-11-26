@@ -218,9 +218,7 @@ public class AuthenticationService {
 
                 List<FormDataBodyPart> images = photos.getFields("image");
 
-                if(images != null) {
-                    System.out.println("incoming image");
-                    
+                if(images != null) {                    
 
                     for (FormDataBodyPart part : images) {
                     
@@ -266,6 +264,7 @@ public class AuthenticationService {
             @FormDataParam("lastname")String lastname,
             @FormDataParam("username")String username,
             @FormDataParam("email")String email,
+            @FormDataParam("password")String password,
             FormDataMultiPart photos
     ){
         User user = em.find(User.class, username);
@@ -278,6 +277,7 @@ public class AuthenticationService {
         user.setLastname(lastname);
         user.setUsername(username);
         user.setEmail(email);
+        user.setPassword(password);
         
 
         try{

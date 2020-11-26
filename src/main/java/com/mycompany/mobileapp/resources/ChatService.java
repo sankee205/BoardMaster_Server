@@ -162,10 +162,8 @@ public class ChatService {
                                 @FormDataParam("message")String text,
                                 FormDataMultiPart multiPart) {
         Long id = Long.parseLong(conversationid);
-        System.out.println(id);
         Message message = null;
         try {
-            System.out.println(sc.getUserPrincipal().getName());
             User user = em.find(User.class,sc.getUserPrincipal().getName());
             Conversation conversation = getConversation(id);
             message = new Message(text,user, conversation);
