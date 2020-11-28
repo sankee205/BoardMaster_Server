@@ -84,6 +84,10 @@ public class MobileAppServiceResource {
     @ConfigProperty(name = "photo.storage.path", defaultValue = "mobileapp_images")
     String photoPath;
 
+    /**
+     * returns all games
+     * @return 
+     */
     @GET
     @Path("games")
     @PermitAll
@@ -92,6 +96,10 @@ public class MobileAppServiceResource {
         return entityManager.createNativeQuery("SELECT * FROM Game", Game.class).getResultList();
     }
     
+    /**
+     * returns all the games the user is attached to
+     * @return 
+     */
     @GET
     @Path("usersgames")
     @RolesAllowed({Group.USER, Group.ADMIN})
@@ -103,6 +111,10 @@ public class MobileAppServiceResource {
         return entityManager.createNativeQuery(query, Game.class).getResultList();
     }
     
+    /**
+     * returns the list of boardgames
+     * @return 
+     */
     @GET
     @Path("boardgames")
     @PermitAll
@@ -112,7 +124,18 @@ public class MobileAppServiceResource {
     }
     
 
-    
+    /**
+     * creates a game from the paramatic inputs 
+     * @param title
+     * @param gameTitle
+     * @param desc
+     * @param players
+     * @param date
+     * @param time
+     * @param photoId
+     * @param photos
+     * @return 
+     */
     @POST
     @Path("add-game")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -181,7 +204,13 @@ public class MobileAppServiceResource {
             return entityManager.merge(game);
     }
 
-    
+    /**
+     * adds a boardgame to the boardgame list if it does not already exist
+     * @param name
+     * @param players
+     * @param photos
+     * @return 
+     */
     @POST
     @Path("add-boardgame")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -243,6 +272,11 @@ public class MobileAppServiceResource {
       
     }
     
+    /**
+     * gets the photo of the boardgame
+     * @param name
+     * @return 
+     */
     @GET
     @Path("image/{name}")
     public String getPhoto(@PathParam("name") String name) {
@@ -256,6 +290,11 @@ public class MobileAppServiceResource {
         return entityManager.find(User.class, securityContext.getUserPrincipal().getName());
     }
     
+    /**
+     * adds a user to a game
+     * @param gameid
+     * @return 
+     */
     @PUT
     @Path("joingame")
     @RolesAllowed({Group.USER})
@@ -279,6 +318,11 @@ public class MobileAppServiceResource {
 
     }
 
+    /**
+     * removes a user from a game
+     * @param gameid
+     * @return 
+     */
     @DELETE
     @Path("exitgame")
     @RolesAllowed({Group.USER})
@@ -297,8 +341,11 @@ public class MobileAppServiceResource {
         return Response.notModified().build();
     }
      
-    
-      private String getPhotoPath() {
+    /**
+     * 
+     * @return 
+     */
+    private String getPhotoPath() {
         if(photoPath== null){
             File f = new File("F:\\Storage/Photos/mobileapp_images"); 
   

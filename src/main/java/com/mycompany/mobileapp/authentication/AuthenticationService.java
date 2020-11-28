@@ -174,17 +174,15 @@ public class AuthenticationService {
     }
 
     /**
-     * Does an insert into the USER and AUSERGROUP tables. It creates a SHA-256
-     * hash of the password and Base64 encodes it before the user is created in
-     * the database. The authentication system will read the ASER table when
-     * doing an authentication.
-     *
-     * @param uid
-     * @param pwd
-     * @return
+     * creates a user from parametic inputs if the user does not already exist
+     * @param firstname
+     * @param lastname
+     * @param username
+     * @param password
+     * @param email
+     * @param photos
+     * @return 
      */
-
-
     @POST
     @PermitAll
     @Path("create")
@@ -255,6 +253,17 @@ public class AuthenticationService {
         }        
     }
     
+    
+    /**
+     * Edits the profile of an already existing user
+     * @param firstname
+     * @param lastname
+     * @param username
+     * @param email
+     * @param password
+     * @param photos
+     * @return 
+     */
     @PUT
     @Path("editprofile")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -321,8 +330,8 @@ public class AuthenticationService {
 
     
     /**
-     *
-     * @return
+     * returns the details of the current user
+     * @return 
      */
     @GET
     @Path("currentuser")    
@@ -346,7 +355,7 @@ public class AuthenticationService {
     
     
     /**
-     *
+     * adds a role to a spesific user
      * @param uid
      * @param role
      * @return

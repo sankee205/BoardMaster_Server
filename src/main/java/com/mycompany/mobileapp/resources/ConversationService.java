@@ -46,7 +46,10 @@ public class ConversationService {
     @Context
     SecurityContext sc;
 
-
+    /**
+     * returns conversations attached to the current user
+     * @return 
+     */
     @GET
     public List<Conversation> getConversations() {
         return em.createNamedQuery(Conversation.FIND_BY_USER,Conversation.class)
@@ -55,6 +58,12 @@ public class ConversationService {
     }
     
 
+    /**
+     * 
+     * @param date
+     * @return
+     * @throws ParseException 
+     */
     @GET
     @Path("conversationfromdate")
     public List<Conversation> getUpdatedConversations(
@@ -66,7 +75,11 @@ public class ConversationService {
                 .getResultList();
     }    
     
-    
+    /**
+     * creates a conversation for the game, uses the game id 
+     * @param gameid
+     * @return 
+     */
     @POST
     @RolesAllowed({Group.USER})
     @Path("createconversation")
@@ -89,6 +102,11 @@ public class ConversationService {
         return result;
     }
     
+    /**
+     * returns the conversation based on the gameid
+     * @param gameid
+     * @return 
+     */
     @GET
     @RolesAllowed({Group.USER})
     @Path("getconversationgame")
@@ -102,6 +120,12 @@ public class ConversationService {
     }
 
 
+    /**
+     * 
+     * @param conversationid
+     * @param recipientIds
+     * @return 
+     */
     @POST
     @Path("updaterecipients")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -119,16 +143,30 @@ public class ConversationService {
         }
     }
     
-
+    /**
+     * 
+     * @param recipientIds
+     * @return 
+     */
     private List<User> findUsersByUserId(List<String> recipientIds) {
         return recipientIds.size() > 0 ? em.createNamedQuery(User.FIND_USER_BY_IDS, User.class)
                 .setParameter("ids",recipientIds)
                 .getResultList() : new ArrayList<>();
     }
 
+    /**
+     * 
+     * @param id
+     * @return 
+     */
     public Conversation findById(Long id) {
         return id != null ? em.find(Conversation.class, id) : null;
     }
+    
+    /**
+     * 
+     * @return 
+     */
     private User getCurrentUser(){
         return em.find(User.class, sc.getUserPrincipal().getName());
     }

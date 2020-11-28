@@ -41,19 +41,36 @@ public class Game implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    //name of game 
     private String gameName;
+    
+    //title of own choosing
     private String title;
+    
+    //dscription
     private String description;
+    
+    //max players
     private int maxPlayers;
-    private List<User> players;   
+    
+    //List of all players
+    private List<User> players;
+    
+    //the game date
     private String date;
+    
+    //the time the game starts
     private String time;
+    
+    //person who published it
     private User gameOwner;
     
+    //Photo of own choosing
     @OneToMany
     List<Photo> profileImages;
     
-      public void addPhoto(Photo photo) {
+    //adds a photo
+    public void addPhoto(Photo photo) {
         if(this.profileImages == null) {
             this.profileImages = new ArrayList<>();
         }
@@ -61,6 +78,7 @@ public class Game implements Serializable {
         this.profileImages.add(photo);
     }
 
+    //adds a player
     public void addPlayer(User player){ 
         if(players == null){
             players = new ArrayList<User>();
@@ -69,10 +87,12 @@ public class Game implements Serializable {
        
     }
 
+    //return the number of players
     public int getPlayerNumber(){
         return players.size();
     }
 
+    //removes a player
     public void removePlayer(User player){
         players.remove(player);
     }

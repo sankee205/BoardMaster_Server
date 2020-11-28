@@ -41,6 +41,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // the message
     String text;
     
     @ManyToOne(optional = false,cascade = CascadeType.PERSIST)
@@ -50,7 +51,6 @@ public class Message {
     @ManyToOne(optional = false,cascade = CascadeType.PERSIST)
     Conversation conversation;
     
-    //@JsonbTypeAdapter(PhotoAdapter.class)
     @OneToMany
     List<Photo> photos;
     

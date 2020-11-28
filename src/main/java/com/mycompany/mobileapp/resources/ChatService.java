@@ -57,7 +57,7 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 /**
- *
+ * 
  * @author sanderkeedklang
  */
 @Path("chat")
