@@ -93,7 +93,7 @@ public class MobileAppServiceResource {
     @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public List<Game> getGames() {
-        return entityManager.createNativeQuery("SELECT * FROM Game", Game.class).getResultList();
+        return entityManager.createNativeQuery("SELECT * FROM Game order by created", Game.class).getResultList();
     }
     
     /**

@@ -21,7 +21,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -65,6 +67,9 @@ public class Game implements Serializable {
     //person who published it
     private User gameOwner;
     
+    @Temporal(javax.persistence.TemporalType.DATE)
+    Date created;
+    
     //Photo of own choosing
     @OneToMany
     List<Photo> profileImages;
@@ -96,4 +101,10 @@ public class Game implements Serializable {
     public void removePlayer(User player){
         players.remove(player);
     }
+    
+    @PrePersist
+    protected void onCreate() {
+        created = new Date();
+    }
+    
 }

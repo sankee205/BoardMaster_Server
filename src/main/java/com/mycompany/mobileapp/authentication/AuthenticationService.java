@@ -286,7 +286,9 @@ public class AuthenticationService {
         user.setLastname(lastname);
         user.setUsername(username);
         user.setEmail(email);
-        user.setPassword(password);
+        if(password != null){
+                    user.setPassword(password);
+        }
         
 
         try{
